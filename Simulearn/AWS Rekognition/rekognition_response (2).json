@@ -1,0 +1,104 @@
+{
+    "Status": "Success! spaceship found",
+    "body": [
+        [
+            {
+                "Name": "Aircraft",
+                "Confidence": 99.84481048583984,
+                "Instances": [],
+                "Parents": [
+                    {
+                        "Name": "Transportation"
+                    },
+                    {
+                        "Name": "Vehicle"
+                    }
+                ],
+                "Aliases": [],
+                "Categories": [
+                    {
+                        "Name": "Vehicles and Automotive"
+                    }
+                ]
+            },
+            {
+                "Name": "Spaceship",
+                "Confidence": 99.84481048583984,
+                "Instances": [],
+                "Parents": [
+                    {
+                        "Name": "Aircraft"
+                    },
+                    {
+                        "Name": "Transportation"
+                    },
+                    {
+                        "Name": "Vehicle"
+                    }
+                ],
+                "Aliases": [],
+                "Categories": [
+                    {
+                        "Name": "Technology and Computing"
+                    }
+                ]
+            },
+            {
+                "Name": "Transportation",
+                "Confidence": 99.84481048583984,
+                "Instances": [],
+                "Parents": [],
+                "Aliases": [],
+                "Categories": [
+                    {
+                        "Name": "Vehicles and Automotive"
+                    }
+                ]
+            },
+            {
+                "Name": "Vehicle",
+                "Confidence": 99.84481048583984,
+                "Instances": [],
+                "Parents": [
+                    {
+                        "Name": "Transportation"
+                    }
+                ],
+                "Aliases": [],
+                "Categories": [
+                    {
+                        "Name": "Vehicles and Automotive"
+                    }
+                ]
+            },
+            {
+                "Name": "CAD Diagram",
+                "Confidence": 83.77687072753906,
+                "Instances": [],
+                "Parents": [
+                    {
+                        "Name": "Diagram"
+                    }
+                ],
+                "Aliases": [],
+                "Categories": [
+                    {
+                        "Name": "Text and Documents"
+                    }
+                ]
+            },
+            {
+                "Name": "Diagram",
+                "Confidence": 83.77687072753906,
+                "Instances": [],
+                "Parents": [],
+                "Aliases": [],
+                "Categories": [
+                    {
+                        "Name": "Text and Documents"
+                    }
+                ]
+            }
+        ]
+    ]
+}

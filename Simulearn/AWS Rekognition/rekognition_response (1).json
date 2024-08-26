@@ -1,0 +1,180 @@
+{
+    "Status": "Success! airplane found",
+    "body": [
+        [
+            {
+                "Name": "Aircraft",
+                "Confidence": 99.98070526123047,
+                "Instances": [],
+                "Parents": [
+                    {
+                        "Name": "Transportation"
+                    },
+                    {
+                        "Name": "Vehicle"
+                    }
+                ],
+                "Aliases": [],
+                "Categories": [
+                    {
+                        "Name": "Vehicles and Automotive"
+                    }
+                ]
+            },
+            {
+                "Name": "Flight",
+                "Confidence": 99.98070526123047,
+                "Instances": [],
+                "Parents": [
+                    {
+                        "Name": "Aircraft"
+                    },
+                    {
+                        "Name": "Transportation"
+                    },
+                    {
+                        "Name": "Vehicle"
+                    }
+                ],
+                "Aliases": [],
+                "Categories": [
+                    {
+                        "Name": "Vehicles and Automotive"
+                    }
+                ]
+            },
+            {
+                "Name": "Transportation",
+                "Confidence": 99.98070526123047,
+                "Instances": [],
+                "Parents": [],
+                "Aliases": [],
+                "Categories": [
+                    {
+                        "Name": "Vehicles and Automotive"
+                    }
+                ]
+            },
+            {
+                "Name": "Vehicle",
+                "Confidence": 99.98070526123047,
+                "Instances": [],
+                "Parents": [
+                    {
+                        "Name": "Transportation"
+                    }
+                ],
+                "Aliases": [],
+                "Categories": [
+                    {
+                        "Name": "Vehicles and Automotive"
+                    }
+                ]
+            },
+            {
+                "Name": "Airliner",
+                "Confidence": 99.96405029296875,
+                "Instances": [],
+                "Parents": [
+                    {
+                        "Name": "Aircraft"
+                    },
+                    {
+                        "Name": "Airplane"
+                    },
+                    {
+                        "Name": "Transportation"
+                    },
+                    {
+                        "Name": "Vehicle"
+                    }
+                ],
+                "Aliases": [],
+                "Categories": [
+                    {
+                        "Name": "Vehicles and Automotive"
+                    }
+                ]
+            },
+            {
+                "Name": "Airplane",
+                "Confidence": 99.96405029296875,
+                "Instances": [
+                    {
+                        "BoundingBox": {
+                            "Width": 0.5583473443984985,
+                            "Height": 0.6772912740707397,
+                            "Left": 0.2794548273086548,
+                            "Top": 0.0907273069024086
+                        },
+                        "Confidence": 99.45015716552734
+                    }
+                ],
+                "Parents": [
+                    {
+                        "Name": "Aircraft"
+                    },
+                    {
+                        "Name": "Transportation"
+                    },
+                    {
+                        "Name": "Vehicle"
+                    }
+                ],
+                "Aliases": [],
+                "Categories": [
+                    {
+                        "Name": "Vehicles and Automotive"
+                    }
+                ]
+            },
+            {
+                "Name": "Animal",
+                "Confidence": 99.7488021850586,
+                "Instances": [],
+                "Parents": [],
+                "Aliases": [],
+                "Categories": [
+                    {
+                        "Name": "Animals and Pets"
+                    }
+                ]
+            },
+            {
+                "Name": "Bird",
+                "Confidence": 99.7488021850586,
+                "Instances": [],
+                "Parents": [
+                    {
+                        "Name": "Animal"
+                    }
+                ],
+                "Aliases": [],
+                "Categories": [
+                    {
+                        "Name": "Animals and Pets"
+                    }
+                ]
+            },
+            {
+                "Name": "Flying",
+                "Confidence": 99.7488021850586,
+                "Instances": [],
+                "Parents": [
+                    {
+                        "Name": "Animal"
+                    },
+                    {
+                        "Name": "Bird"
+                    }
+                ],
+                "Aliases": [],
+                "Categories": [
+                    {
+                        "Name": "Actions"
+                    }
+                ]
+            }
+        ]
+    ]
+}

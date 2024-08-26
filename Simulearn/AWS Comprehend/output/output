@@ -1,0 +1,1 @@
+{"File": "sample_comprehend_file.txt", "Line": 0, "Sentiment": "NEGATIVE", "SentimentScore": {"Mixed": 0.004248353186994791, "Negative": 0.9894999861717224, "Neutral": 0.004759928677231073, "Positive": 0.0014916436048224568}}
