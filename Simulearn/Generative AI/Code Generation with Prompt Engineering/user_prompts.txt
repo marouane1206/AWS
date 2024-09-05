@@ -1,0 +1,79 @@
+#### Generate SQL query user prompt ####
+
+
+Identify the top 5 most viewed anime titles for the current year and calculate the average view count per episode for each anime released in the current year.
+
+
+#### Code translation user prompt ####
+
+
+//Legacy Java Code
+public class AnimationRenderer {
+    private static final int FRAME_WIDTH = 640;
+    private static final int FRAME_HEIGHT = 480;
+
+    public static void renderAnimation(List<Frame> frames, String outputPath) {
+        try (FileOutputStream outputStream = new FileOutputStream(outputPath)) {
+            outputStream.write(ByteBuffer.allocate(4).putInt(frames.size()).array());
+
+            for (Frame frame : frames) {
+                outputStream.write(ByteBuffer.allocate(4).putInt(FRAME_WIDTH).array());
+                outputStream.write(ByteBuffer.allocate(4).putInt(FRAME_HEIGHT).array());
+
+                for (int y = 0; y < FRAME_HEIGHT; y++) {
+                    for (int x = 0; x < FRAME_WIDTH; x++) {
+                        Color color = frame.getPixel(x, y);
+                        outputStream.write(ByteBuffer.allocate(4)
+                                .putInt((color.getRed() << 16) | (color.getGreen() << 8) | color.getBlue())
+                                .array());
+                    }
+                }
+            }
+        } catch (IOException e) {
+            System.err.println("Error writing animation file: " + e.getMessage());
+        }
+    }
+}
+
+
+#### Code analysis user prompt ####
+
+
+import cv2
+from collections import deque
+
+def detect_anime_character(frame, character_cascade, pts):
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    characters = character_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(30, 30))
+
+    for (x, y, w, h) in characters:
+        center = (x + w // 2, y + h // 2)
+        pts.appendleft(center)
+
+        for i in range(1, len(pts)):
+            thickness = int(np.sqrt(64 / float(i + 1)) * 2.5)
+            cv2.line(frame, pts[i - 1], pts[i], (0, 0, 255), thickness)
+
+        cv2.circle(frame, center, 5, (0, 0, 255), -1)
+        cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
+
+    return frame, pts
+
+character_cascade = cv2.CascadeClassifier('anime_character_detector.xml')
+pts = deque(maxlen=64)
+
+cap = cv2.VideoCapture('anime_video.mp4')
+while True:
+    ret, frame = cap.read()
+    if not ret:
+        break
+
+    frame, pts = detect_anime_character(frame, character_cascade, pts)
+    cv2.imshow('Anime Character Tracker', frame)
+
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
+
+cap.release()
+cv2.destroyAllWindows()
+

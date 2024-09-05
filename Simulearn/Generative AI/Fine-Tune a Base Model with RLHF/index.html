@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+	<title>LLM Fine-tuning results</title>
+
+	<link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://www.datatables.net/rss.xml">
+	<link rel="stylesheet" type="text/css" href="static/site-examples.css?_=8f7cff5ee7757412879aedf3efbfaee01">
+	<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.1/css/jquery.dataTables.min.css">
+	<style type="text/css" class="init">
+
+	</style>
+
+	<script type="text/javascript" language="javascript" src="https://code.jquery.com/jquery-3.5.1.js"></script>
+
+	<script type="text/javascript" language="javascript"
+		src="https://cdn.datatables.net/1.13.1/js/jquery.dataTables.min.js"></script>
+
+	<script type="text/javascript" class="init">
+		$(document).ready(function () {
+			$('#example').DataTable({
+				//DIY: REPLACE WITH API GATEWAY INVOKE URL
+				ajax: '<REPLACE_WITH_API_GATEWAY_INVOKE_URL>',
+				columns: [
+					{ data: 'conversation_id.N' },
+					{ data: 'query.S' },
+					{ data: 'response_before.S' },
+					{ data: 'response_after.S' },
+				],
+			});
+		});
+	</script>
+
+</head>
+
+<body class="wide comments example">
+	<div class="header">
+		<p></p>
+		<h1 style="font-size:300%;">Fine-tuned LLM Results</h1>
+		<br><br>
+	</div>
+	<div class="content">
+		<div class="demo-html">
+			<table id="example" class="display" style="width:100%">
+				<thead>
+					<tr>
+						<th>Conversation ID</th>
+						<th>Conversation</th>
+						<th>Original Summary</th>
+						<th>Fine-tuned Summary</th>
+					</tr>
+				</thead>
+				<tfoot>
+					<tr>
+						<th>Conversation ID</th>
+						<th>Conversation</th>
+						<th>Original Summary</th>
+						<th>Fine-tuned Summary</th>
+					</tr>
+				</tfoot>
+			</table>
+		</div>
+	</div>
+
+</body>
+</html>

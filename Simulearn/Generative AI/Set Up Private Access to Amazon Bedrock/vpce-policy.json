@@ -1,0 +1,17 @@
+{
+	"Version": "2012-10-17",
+	"Statement": [
+		{
+			"Action": [
+				"bedrock:InvokeModel"
+			],
+			"Resource": [
+				"arn:aws:bedrock:us-east-1::foundation-model/amazon.titan-text-express-v1"
+			],
+			"Effect": "Allow",
+			"Principal": {
+				"AWS": "arn:aws:sts::<accountid>:assumed-role/lab_lambda_role/invoke_bedrock"
+			}
+		}
+	]
+}

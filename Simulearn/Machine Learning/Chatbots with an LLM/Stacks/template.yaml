@@ -1,0 +1,1362 @@
+Metadata:
+  AwsLabsManagedResource:
+    - GblLabMonitoring:10
+Resources:
+  GblLabMonitoringgbllabmonitoringrole5A68A849:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+        Version: "2012-10-17"
+      ManagedPolicyArns:
+        - Fn::Join:
+            - ""
+            - - "arn:"
+              - Ref: AWS::Partition
+              - :iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      RoleName: gbl_lab_monitoring
+      Tags:
+        - Key: GblCustomComponent
+          Value: "True"
+        - Key: GblLabMonitoring
+          Value: 1.0.0
+    Metadata:
+      aws:cdk:path: CdkLab87db28eeStack/GblLabMonitoring/gbl_lab_monitoring_role/Resource
+  GblLabMonitoringgbllabmonitoringroleDefaultPolicy5F9121AB:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action:
+              - ds:DeleteDirectory
+              - ds:DescribeDirectories
+              - ds:UnauthorizeApplication
+              - ec2:Delete*
+              - ec2:Describe*
+              - ec2:Disable
+              - ec2:Get*
+              - ec2:List*
+              - ec2:Revoke*
+              - ec2:Stop*
+              - ec2:Terminate*
+              - ec2:Update*
+              - glue:DeleteJob
+              - glue:GetJobs
+              - lambda:Delete*
+              - lambda:Get*
+              - lambda:List*
+              - logs:CreateLogGroup
+              - logs:CreateLogStream
+              - logs:PutLogEvents
+              - quicksight:Delete*
+              - quicksight:Describe*
+              - quicksight:Disable*
+              - quicksight:Get*
+              - quicksight:List*
+              - quicksight:Stop*
+              - quicksight:Update*
+              - sagemaker:Delete*
+              - sagemaker:Describe*
+              - sagemaker:Disable*
+              - sagemaker:Get*
+              - sagemaker:List*
+              - sagemaker:Stop*
+            Effect: Allow
+            Resource: "*"
+        Version: "2012-10-17"
+      PolicyName: GblLabMonitoringgbllabmonitoringroleDefaultPolicy5F9121AB
+      Roles:
+        - Ref: GblLabMonitoringgbllabmonitoringrole5A68A849
+    Metadata:
+      aws:cdk:path: CdkLab87db28eeStack/GblLabMonitoring/gbl_lab_monitoring_role/DefaultPolicy/Resource
+  GblLabMonitoringgbllabmonitoringfunctionEFA91CEB:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+        S3Bucket:
+          Ref: LabResourcesBucket
+        S3Key:
+          Fn::Join:
+            - ""
+            - - Ref: LabResourcesBucketKeyPrefix
+              - GblLabMonitoring:10
+      Environment:
+        Variables:
+          glue_max_allocated_capacity: "10"
+          glue_max_allocated_concurrency: "2"
+          glue_max_number_of_workers: "10"
+          glue_valid_worker_types: Standard,G.1X,G.2X,G.025X
+          glue_max_number_of_jobs: "10"
+          sage_maker_allowed_instance_count: "2"
+          sage_maker_allowed_endpoint: "3"
+          lambda_monitoring_function: gbl_lab_monitoring
+          lambda_max_memory: "512"
+          lambda_max_storage: "1024"
+          lambda_max_timeout: "900"
+          lambda_max_concurrency: "1"
+          ec2_max_allowed_instances: "5"
+          lab_pool_id:
+            Ref: LabPoolId
+          dry_run: "False"
+      FunctionName: gbl_lab_monitoring
+      Handler: gbl_lab_monitoring.monitor_lab.lambda_handler
+      MemorySize: 512
+      Role:
+        Fn::GetAtt:
+          - GblLabMonitoringgbllabmonitoringrole5A68A849
+          - Arn
+      Runtime: python3.11
+      Tags:
+        - Key: GblCustomComponent
+          Value: "True"
+        - Key: GblLabMonitoring
+          Value: 1.0.0
+      Timeout: 300
+    DependsOn:
+      - GblLabMonitoringgbllabmonitoringroleDefaultPolicy5F9121AB
+      - GblLabMonitoringgbllabmonitoringrole5A68A849
+    Metadata:
+      aws:cdk:path: CdkLab87db28eeStack/GblLabMonitoring/gbl_lab_monitoring_function/Resource
+  GblLabMonitoringmonitoringruleglueA0F10C68:
+    Type: AWS::Events::Rule
+    Properties:
+      EventPattern:
+        source:
+          - aws.glue
+        detail-type:
+          - AWS API Call via CloudTrail
+        detail:
+          eventSource:
+            - glue.amazonaws.com
+          eventName:
+            - StartJobRun
+      Targets:
+        - Arn:
+            Fn::GetAtt:
+              - GblLabMonitoringgbllabmonitoringfunctionEFA91CEB
+              - Arn
+          Id: lab_monitoring_function
+    Metadata:
+      aws:cdk:path: CdkLab87db28eeStack/GblLabMonitoring/monitoring_rule_glue
+  GblLabMonitoringcallfromeventmonitoringglue3795E4E2:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Ref: GblLabMonitoringgbllabmonitoringfunctionEFA91CEB
+      Principal: events.amazonaws.com
+      SourceArn:
+        Fn::GetAtt:
+          - GblLabMonitoringmonitoringruleglueA0F10C68
+          - Arn
+    Metadata:
+      aws:cdk:path: CdkLab87db28eeStack/GblLabMonitoring/call_from_event_monitoring_glue
+  GblLabMonitoringmonitoringrulesagemaker1C170BB5:
+    Type: AWS::Events::Rule
+    Properties:
+      EventPattern:
+        source:
+          - aws.sagemaker
+        detail-type:
+          - SageMaker Endpoint State Change
+      Targets:
+        - Arn:
+            Fn::GetAtt:
+              - GblLabMonitoringgbllabmonitoringfunctionEFA91CEB
+              - Arn
+          Id: lab_monitoring_function
+    Metadata:
+      aws:cdk:path: CdkLab87db28eeStack/GblLabMonitoring/monitoring_rule_sagemaker
+  GblLabMonitoringcallfromeventmonitoringsagemakerBE2DFCD7:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Ref: GblLabMonitoringgbllabmonitoringfunctionEFA91CEB
+      Principal: events.amazonaws.com
+      SourceArn:
+        Fn::GetAtt:
+          - GblLabMonitoringmonitoringrulesagemaker1C170BB5
+          - Arn
+    Metadata:
+      aws:cdk:path: CdkLab87db28eeStack/GblLabMonitoring/call_from_event_monitoring_sagemaker
+  GblLabMonitoringmonitoringrulequicksight42CF344D:
+    Type: AWS::Events::Rule
+    Properties:
+      EventPattern:
+        source:
+          - aws.quicksight
+        detail-type:
+          - AWS API Call via CloudTrail
+        detail:
+          eventSource:
+            - quicksight.amazonaws.com
+      Targets:
+        - Arn:
+            Fn::GetAtt:
+              - GblLabMonitoringgbllabmonitoringfunctionEFA91CEB
+              - Arn
+          Id: lab_monitoring_function
+    Metadata:
+      aws:cdk:path: CdkLab87db28eeStack/GblLabMonitoring/monitoring_rule_quicksight
+  GblLabMonitoringcallfromeventmonitoringquicksight7C07E430:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Ref: GblLabMonitoringgbllabmonitoringfunctionEFA91CEB
+      Principal: events.amazonaws.com
+      SourceArn:
+        Fn::GetAtt:
+          - GblLabMonitoringmonitoringrulequicksight42CF344D
+          - Arn
+    Metadata:
+      aws:cdk:path: CdkLab87db28eeStack/GblLabMonitoring/call_from_event_monitoring_quicksight
+  GblLabMonitoringmonitoringrulelambda105995BB:
+    Type: AWS::Events::Rule
+    Properties:
+      EventPattern:
+        source:
+          - aws.lambda
+      Targets:
+        - Arn:
+            Fn::GetAtt:
+              - GblLabMonitoringgbllabmonitoringfunctionEFA91CEB
+              - Arn
+          Id: lab_monitoring_function
+    Metadata:
+      aws:cdk:path: CdkLab87db28eeStack/GblLabMonitoring/monitoring_rule_lambda
+  GblLabMonitoringcallfromeventmonitoringlambda57283035:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Ref: GblLabMonitoringgbllabmonitoringfunctionEFA91CEB
+      Principal: events.amazonaws.com
+      SourceArn:
+        Fn::GetAtt:
+          - GblLabMonitoringmonitoringrulelambda105995BB
+          - Arn
+    Metadata:
+      aws:cdk:path: CdkLab87db28eeStack/GblLabMonitoring/call_from_event_monitoring_lambda
+  GblLabMonitoringmonitoringruleec2474DBA6D:
+    Type: AWS::Events::Rule
+    Properties:
+      EventPattern:
+        source:
+          - aws.ec2
+        detail-type:
+          - EC2 Instance State-change Notification
+        detail:
+          state:
+            - pending
+            - running
+      Targets:
+        - Arn:
+            Fn::GetAtt:
+              - GblLabMonitoringgbllabmonitoringfunctionEFA91CEB
+              - Arn
+          Id: lab_monitoring_function
+    Metadata:
+      aws:cdk:path: CdkLab87db28eeStack/GblLabMonitoring/monitoring_rule_ec2
+  GblLabMonitoringcallfromeventmonitoringec291CF56B0:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Ref: GblLabMonitoringgbllabmonitoringfunctionEFA91CEB
+      Principal: events.amazonaws.com
+      SourceArn:
+        Fn::GetAtt:
+          - GblLabMonitoringmonitoringruleec2474DBA6D
+          - Arn
+    Metadata:
+      aws:cdk:path: CdkLab87db28eeStack/GblLabMonitoring/call_from_event_monitoring_ec2
+  GblLabMonitoringgblattachpoliciesattachpoliciesrole05A54868:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+        Version: "2012-10-17"
+      Tags:
+        - Key: GblCustomComponent
+          Value: "True"
+        - Key: GblLabMonitoring
+          Value: 1.0.0
+    Metadata:
+      aws:cdk:path: CdkLab87db28eeStack/GblLabMonitoring/gbl_attach_policies/attach_policies_role/Resource
+  GblLabMonitoringgblattachpoliciesattachpoliciesfunctionB8497992:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+        ZipFile: |
+          
+          import os
+          import time
+
+          import boto3
+          import cfnresponse
+          from botocore.config import Config
+
+          MAX_ATTEMPTS = 5
+          WAIT_SECONDS = 5
+
+          BOTO3_CONFIG = Config(connect_timeout=1, read_timeout=5, retries={"mode": "standard", "total_max_attempts": 3})
+
+          iam_client = boto3.client("iam", config=BOTO3_CONFIG)
+          lambda_client = boto3.client("lambda", config=BOTO3_CONFIG)
+
+          ATTACH_POLICIES_FUNCTION_NAME = os.environ["AWS_LAMBDA_FUNCTION_NAME"]
+          ATTACH_POLICIES_ROLE_NAME = os.environ["role_name"]
+          ATTACH_POLICIES_POLICY_NAME = os.environ["attach_policies_policy_name"]
+          DELETE_RESOURCES_POLICY_NAME = os.environ["delete_resource_policy_name"]
+
+          def execute_retryable_call(fn):
+              last_exception = None
+              for _ in range(MAX_ATTEMPTS):
+                  try:
+                      return fn()
+                  except Exception as e:
+                      last_exception = e
+                      time.sleep(WAIT_SECONDS)
+              raise last_exception
+
+
+          def attach_policies(role_name, policy_arns):
+              for policy_arn in policy_arns:
+                  execute_retryable_call(lambda: iam_client.attach_role_policy(RoleName=role_name, PolicyArn=policy_arn))
+
+
+          def delete_attach_policies_policy():
+              iam_client.delete_role_policy(RoleName=ATTACH_POLICIES_ROLE_NAME, PolicyName=ATTACH_POLICIES_POLICY_NAME)
+
+
+          def delete_function_and_role():
+              lambda_client.delete_function(FunctionName=ATTACH_POLICIES_FUNCTION_NAME)
+              iam_client.delete_role_policy(RoleName=ATTACH_POLICIES_ROLE_NAME, PolicyName=DELETE_RESOURCES_POLICY_NAME)
+              iam_client.delete_role(RoleName=ATTACH_POLICIES_ROLE_NAME)
+
+
+          def lambda_handler(event, context):
+              properties = event["ResourceProperties"]
+              try:
+                  if event["RequestType"] == "Create":
+                      attach_policies(properties["RoleName"], properties["PolicyArns"])
+                      time.sleep(WAIT_SECONDS)
+                      delete_attach_policies_policy()
+                      reason = "Policies Attached"
+                  else:
+                      reason = "No Action Performed"
+                  status = cfnresponse.SUCCESS
+              except Exception as e:
+                  status = cfnresponse.FAILED
+                  reason = str(e)[:500]
+              finally:
+                  cfnresponse.send(event, context, status, {}, reason=reason)
+                  delete_function_and_role()
+      Environment:
+        Variables:
+          role_name:
+            Ref: GblLabMonitoringgblattachpoliciesattachpoliciesrole05A54868
+          attach_policies_policy_name: GblLabMonitoringgblattachpoliciesattachpoliciespolicyC65866EB
+          delete_resource_policy_name: GblLabMonitoringgblattachpoliciesdeleteresourcepolicy338A28A1
+      Handler: index.lambda_handler
+      Role:
+        Fn::GetAtt:
+          - GblLabMonitoringgblattachpoliciesattachpoliciesrole05A54868
+          - Arn
+      Runtime: python3.11
+      Tags:
+        - Key: GblCustomComponent
+          Value: "True"
+        - Key: GblLabMonitoring
+          Value: 1.0.0
+      Timeout: 300
+    DependsOn:
+      - GblLabMonitoringgblattachpoliciesattachpoliciesrole05A54868
+    Metadata:
+      aws:cdk:path: CdkLab87db28eeStack/GblLabMonitoring/gbl_attach_policies/attach_policies_function/Resource
+  GblLabMonitoringgblattachpoliciesattachpoliciespolicyC65866EB:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action: iam:AttachRolePolicy
+            Effect: Allow
+            Resource:
+              Fn::Join:
+                - ""
+                - - arn:aws:iam::*:role/
+                  - Ref: LabUserRoleName
+        Version: "2012-10-17"
+      PolicyName: GblLabMonitoringgblattachpoliciesattachpoliciespolicyC65866EB
+      Roles:
+        - Ref: GblLabMonitoringgblattachpoliciesattachpoliciesrole05A54868
+    Metadata:
+      aws:cdk:path: CdkLab87db28eeStack/GblLabMonitoring/gbl_attach_policies/attach_policies_policy/Resource
+  GblLabMonitoringgblattachpoliciesdeleteresourcepolicy338A28A1:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action:
+              - iam:DeleteRole
+              - iam:DeleteRolePolicy
+            Effect: Allow
+            Resource:
+              Fn::GetAtt:
+                - GblLabMonitoringgblattachpoliciesattachpoliciesrole05A54868
+                - Arn
+          - Action: lambda:DeleteFunction
+            Effect: Allow
+            Resource:
+              Fn::GetAtt:
+                - GblLabMonitoringgblattachpoliciesattachpoliciesfunctionB8497992
+                - Arn
+        Version: "2012-10-17"
+      PolicyName: GblLabMonitoringgblattachpoliciesdeleteresourcepolicy338A28A1
+      Roles:
+        - Ref: GblLabMonitoringgblattachpoliciesattachpoliciesrole05A54868
+    Metadata:
+      aws:cdk:path: CdkLab87db28eeStack/GblLabMonitoring/gbl_attach_policies/delete_resource_policy/Resource
+  GblLabMonitoringgblattachpoliciesmanagedattachrolepolicyA52FC37A:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      Description: ""
+      Path: /
+      PolicyDocument:
+        Statement:
+          - Action: "*"
+            Effect: Deny
+            Resource:
+              - Fn::GetAtt:
+                  - GblLabMonitoringgbllabmonitoringfunctionEFA91CEB
+                  - Arn
+              - Fn::GetAtt:
+                  - GblLabMonitoringgbllabmonitoringrole5A68A849
+                  - Arn
+              - Fn::GetAtt:
+                  - GblLabMonitoringmonitoringruleec2474DBA6D
+                  - Arn
+              - Fn::GetAtt:
+                  - GblLabMonitoringmonitoringruleglueA0F10C68
+                  - Arn
+              - Fn::GetAtt:
+                  - GblLabMonitoringmonitoringrulelambda105995BB
+                  - Arn
+              - Fn::GetAtt:
+                  - GblLabMonitoringmonitoringrulequicksight42CF344D
+                  - Arn
+              - Fn::GetAtt:
+                  - GblLabMonitoringmonitoringrulesagemaker1C170BB5
+                  - Arn
+        Version: "2012-10-17"
+    Metadata:
+      aws:cdk:path: CdkLab87db28eeStack/GblLabMonitoring/gbl_attach_policies/managed_attach_role_policy/Resource
+  GblLabMonitoringgblattachpoliciesattachpoliciescustomresource9225376F:
+    Type: AWS::CloudFormation::CustomResource
+    Properties:
+      ServiceToken:
+        Fn::GetAtt:
+          - GblLabMonitoringgblattachpoliciesattachpoliciesfunctionB8497992
+          - Arn
+      RoleName:
+        Ref: LabUserRoleName
+      PolicyArns:
+        - Ref: GblLabMonitoringgblattachpoliciesmanagedattachrolepolicyA52FC37A
+    DependsOn:
+      - GblLabMonitoringgblattachpoliciesattachpoliciesfunctionB8497992
+      - GblLabMonitoringgblattachpoliciesmanagedattachrolepolicyA52FC37A
+    UpdateReplacePolicy: Delete
+    DeletionPolicy: Delete
+    Metadata:
+      aws:cdk:path: CdkLab87db28eeStack/GblLabMonitoring/gbl_attach_policies/attach_policies_custom_resource/Default
+  chatbotllmbucket43B267C2:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName:
+        Fn::Join:
+          - ""
+          - - chatbot-llm-
+            - Ref: AWS::AccountId
+            - "-"
+            - Fn::Select:
+                - 0
+                - Fn::Split:
+                    - "-"
+                    - Fn::Select:
+                        - 2
+                        - Fn::Split:
+                            - /
+                            - Ref: AWS::StackId
+    UpdateReplacePolicy: Delete
+    DeletionPolicy: Delete
+    Metadata:
+      aws:cdk:path: CdkLab87db28eeStack/chatbot-llm-bucket/Resource
+  codebucket781C62F5:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName:
+        Fn::Join:
+          - ""
+          - - lab-code-
+            - Fn::Select:
+                - 0
+                - Fn::Split:
+                    - "-"
+                    - Fn::Select:
+                        - 2
+                        - Fn::Split:
+                            - /
+                            - Ref: AWS::StackId
+    UpdateReplacePolicy: Delete
+    DeletionPolicy: Delete
+    Metadata:
+      aws:cdk:path: CdkLab87db28eeStack/code-bucket/Resource
+  LabVPC841D92ED:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.0.0.0/16
+      EnableDnsHostnames: true
+      EnableDnsSupport: true
+      InstanceTenancy: default
+      Tags:
+        - Key: Name
+          Value: LabVPC
+    Metadata:
+      aws:cdk:path: CdkLab87db28eeStack/LabVPC/Resource
+  LabVPCpublicSubnet1Subnet01111A5D:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone:
+        Fn::Select:
+          - 0
+          - Fn::GetAZs: ""
+      CidrBlock: 10.0.0.0/24
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: aws-cdk:subnet-name
+          Value: public
+        - Key: aws-cdk:subnet-type
+          Value: Public
+        - Key: Name
+          Value: CdkLab87db28eeStack/LabVPC/publicSubnet1
+      VpcId:
+        Ref: LabVPC841D92ED
+    Metadata:
+      aws:cdk:path: CdkLab87db28eeStack/LabVPC/publicSubnet1/Subnet
+  LabVPCpublicSubnet1RouteTableC52E8EF0:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      Tags:
+        - Key: Name
+          Value: CdkLab87db28eeStack/LabVPC/publicSubnet1
+      VpcId:
+        Ref: LabVPC841D92ED
+    Metadata:
+      aws:cdk:path: CdkLab87db28eeStack/LabVPC/publicSubnet1/RouteTable
+  LabVPCpublicSubnet1RouteTableAssociationEE648717:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId:
+        Ref: LabVPCpublicSubnet1RouteTableC52E8EF0
+      SubnetId:
+        Ref: LabVPCpublicSubnet1Subnet01111A5D
+    Metadata:
+      aws:cdk:path: CdkLab87db28eeStack/LabVPC/publicSubnet1/RouteTableAssociation
+  LabVPCpublicSubnet1DefaultRoute14878013:
+    Type: AWS::EC2::Route
+    Properties:
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId:
+        Ref: LabVPCIGW420A2B26
+      RouteTableId:
+        Ref: LabVPCpublicSubnet1RouteTableC52E8EF0
+    DependsOn:
+      - LabVPCVPCGW4296DBEB
+    Metadata:
+      aws:cdk:path: CdkLab87db28eeStack/LabVPC/publicSubnet1/DefaultRoute
+  LabVPCpublicSubnet1EIP1BE16868:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
+      Tags:
+        - Key: Name
+          Value: CdkLab87db28eeStack/LabVPC/publicSubnet1
+    Metadata:
+      aws:cdk:path: CdkLab87db28eeStack/LabVPC/publicSubnet1/EIP
+  LabVPCpublicSubnet1NATGatewayAE1D803C:
+    Type: AWS::EC2::NatGateway
+    Properties:
+      AllocationId:
+        Fn::GetAtt:
+          - LabVPCpublicSubnet1EIP1BE16868
+          - AllocationId
+      SubnetId:
+        Ref: LabVPCpublicSubnet1Subnet01111A5D
+      Tags:
+        - Key: Name
+          Value: CdkLab87db28eeStack/LabVPC/publicSubnet1
+    DependsOn:
+      - LabVPCpublicSubnet1DefaultRoute14878013
+      - LabVPCpublicSubnet1RouteTableAssociationEE648717
+    Metadata:
+      aws:cdk:path: CdkLab87db28eeStack/LabVPC/publicSubnet1/NATGateway
+  LabVPCpublicSubnet2SubnetB4A7E582:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone:
+        Fn::Select:
+          - 1
+          - Fn::GetAZs: ""
+      CidrBlock: 10.0.1.0/24
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: aws-cdk:subnet-name
+          Value: public
+        - Key: aws-cdk:subnet-type
+          Value: Public
+        - Key: Name
+          Value: CdkLab87db28eeStack/LabVPC/publicSubnet2
+      VpcId:
+        Ref: LabVPC841D92ED
+    Metadata:
+      aws:cdk:path: CdkLab87db28eeStack/LabVPC/publicSubnet2/Subnet
+  LabVPCpublicSubnet2RouteTableDE009949:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      Tags:
+        - Key: Name
+          Value: CdkLab87db28eeStack/LabVPC/publicSubnet2
+      VpcId:
+        Ref: LabVPC841D92ED
+    Metadata:
+      aws:cdk:path: CdkLab87db28eeStack/LabVPC/publicSubnet2/RouteTable
+  LabVPCpublicSubnet2RouteTableAssociation27E55162:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId:
+        Ref: LabVPCpublicSubnet2RouteTableDE009949
+      SubnetId:
+        Ref: LabVPCpublicSubnet2SubnetB4A7E582
+    Metadata:
+      aws:cdk:path: CdkLab87db28eeStack/LabVPC/publicSubnet2/RouteTableAssociation
+  LabVPCpublicSubnet2DefaultRouteB18FEE1D:
+    Type: AWS::EC2::Route
+    Properties:
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId:
+        Ref: LabVPCIGW420A2B26
+      RouteTableId:
+        Ref: LabVPCpublicSubnet2RouteTableDE009949
+    DependsOn:
+      - LabVPCVPCGW4296DBEB
+    Metadata:
+      aws:cdk:path: CdkLab87db28eeStack/LabVPC/publicSubnet2/DefaultRoute
+  LabVPCpublicSubnet2EIP46CDC4BD:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
+      Tags:
+        - Key: Name
+          Value: CdkLab87db28eeStack/LabVPC/publicSubnet2
+    Metadata:
+      aws:cdk:path: CdkLab87db28eeStack/LabVPC/publicSubnet2/EIP
+  LabVPCpublicSubnet2NATGatewayE283D311:
+    Type: AWS::EC2::NatGateway
+    Properties:
+      AllocationId:
+        Fn::GetAtt:
+          - LabVPCpublicSubnet2EIP46CDC4BD
+          - AllocationId
+      SubnetId:
+        Ref: LabVPCpublicSubnet2SubnetB4A7E582
+      Tags:
+        - Key: Name
+          Value: CdkLab87db28eeStack/LabVPC/publicSubnet2
+    DependsOn:
+      - LabVPCpublicSubnet2DefaultRouteB18FEE1D
+      - LabVPCpublicSubnet2RouteTableAssociation27E55162
+    Metadata:
+      aws:cdk:path: CdkLab87db28eeStack/LabVPC/publicSubnet2/NATGateway
+  LabVPCprivateSubnet1SubnetFE4F3245:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone:
+        Fn::Select:
+          - 0
+          - Fn::GetAZs: ""
+      CidrBlock: 10.0.2.0/24
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: aws-cdk:subnet-name
+          Value: private
+        - Key: aws-cdk:subnet-type
+          Value: Private
+        - Key: Name
+          Value: CdkLab87db28eeStack/LabVPC/privateSubnet1
+      VpcId:
+        Ref: LabVPC841D92ED
+    Metadata:
+      aws:cdk:path: CdkLab87db28eeStack/LabVPC/privateSubnet1/Subnet
+  LabVPCprivateSubnet1RouteTable52FEF67C:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      Tags:
+        - Key: Name
+          Value: CdkLab87db28eeStack/LabVPC/privateSubnet1
+      VpcId:
+        Ref: LabVPC841D92ED
+    Metadata:
+      aws:cdk:path: CdkLab87db28eeStack/LabVPC/privateSubnet1/RouteTable
+  LabVPCprivateSubnet1RouteTableAssociationA43BA9C9:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId:
+        Ref: LabVPCprivateSubnet1RouteTable52FEF67C
+      SubnetId:
+        Ref: LabVPCprivateSubnet1SubnetFE4F3245
+    Metadata:
+      aws:cdk:path: CdkLab87db28eeStack/LabVPC/privateSubnet1/RouteTableAssociation
+  LabVPCprivateSubnet1DefaultRoute6229FB24:
+    Type: AWS::EC2::Route
+    Properties:
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId:
+        Ref: LabVPCpublicSubnet1NATGatewayAE1D803C
+      RouteTableId:
+        Ref: LabVPCprivateSubnet1RouteTable52FEF67C
+    Metadata:
+      aws:cdk:path: CdkLab87db28eeStack/LabVPC/privateSubnet1/DefaultRoute
+  LabVPCprivateSubnet2Subnet9EEE5B77:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone:
+        Fn::Select:
+          - 1
+          - Fn::GetAZs: ""
+      CidrBlock: 10.0.3.0/24
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: aws-cdk:subnet-name
+          Value: private
+        - Key: aws-cdk:subnet-type
+          Value: Private
+        - Key: Name
+          Value: CdkLab87db28eeStack/LabVPC/privateSubnet2
+      VpcId:
+        Ref: LabVPC841D92ED
+    Metadata:
+      aws:cdk:path: CdkLab87db28eeStack/LabVPC/privateSubnet2/Subnet
+  LabVPCprivateSubnet2RouteTableE6C6B365:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      Tags:
+        - Key: Name
+          Value: CdkLab87db28eeStack/LabVPC/privateSubnet2
+      VpcId:
+        Ref: LabVPC841D92ED
+    Metadata:
+      aws:cdk:path: CdkLab87db28eeStack/LabVPC/privateSubnet2/RouteTable
+  LabVPCprivateSubnet2RouteTableAssociationEE8CC00F:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId:
+        Ref: LabVPCprivateSubnet2RouteTableE6C6B365
+      SubnetId:
+        Ref: LabVPCprivateSubnet2Subnet9EEE5B77
+    Metadata:
+      aws:cdk:path: CdkLab87db28eeStack/LabVPC/privateSubnet2/RouteTableAssociation
+  LabVPCprivateSubnet2DefaultRouteEC58D78B:
+    Type: AWS::EC2::Route
+    Properties:
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId:
+        Ref: LabVPCpublicSubnet2NATGatewayE283D311
+      RouteTableId:
+        Ref: LabVPCprivateSubnet2RouteTableE6C6B365
+    Metadata:
+      aws:cdk:path: CdkLab87db28eeStack/LabVPC/privateSubnet2/DefaultRoute
+  LabVPCIGW420A2B26:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Name
+          Value: LabVPC
+    Metadata:
+      aws:cdk:path: CdkLab87db28eeStack/LabVPC/IGW
+  LabVPCVPCGW4296DBEB:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      InternetGatewayId:
+        Ref: LabVPCIGW420A2B26
+      VpcId:
+        Ref: LabVPC841D92ED
+    Metadata:
+      aws:cdk:path: CdkLab87db28eeStack/LabVPC/VPCGW
+  notebookAccessRoleFF9FFE8C:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service:
+                - codebuild.amazonaws.com
+                - sagemaker.amazonaws.com
+        Version: "2012-10-17"
+      RoleName: sagemaker_studio_role
+    Metadata:
+      aws:cdk:path: CdkLab87db28eeStack/notebookAccessRole/Resource
+  notebookAccessPolicyFF100858:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action:
+              - iam:GetRole
+              - iam:PassRole
+            Effect: Allow
+            Resource: arn:aws:iam::*:role/sagemaker_studio_role
+            Sid: IAM1
+          - Action: iam:ListRoles
+            Effect: Allow
+            Resource: "*"
+            Sid: IAM2
+          - Action:
+              - ecr:*
+              - sagemaker:AddTags
+              - sagemaker:CreateAppImageConfig
+              - sagemaker:CreateArtifact
+              - sagemaker:CreateCodeRepository
+              - sagemaker:CreateEndpoint
+              - sagemaker:CreateEndpointConfig
+              - sagemaker:CreateImage
+              - sagemaker:CreateImageVersion
+              - sagemaker:CreateModel
+              - sagemaker:CreateModelPackage
+              - sagemaker:CreatePresignedDomainUrl
+              - sagemaker:DeleteEndpoint
+              - sagemaker:DeleteEndpointConfig
+              - sagemaker:DeleteImage
+              - sagemaker:DeleteImageVersion
+              - sagemaker:DeleteModel
+              - sagemaker:DeleteModelPackage
+              - sagemaker:DeleteTags
+              - sagemaker:Describe*
+              - sagemaker:DescribeApp
+              - sagemaker:InvokeEndpoint
+              - sagemaker:InvokeEndpointAsync
+              - sagemaker:List*
+              - sagemaker:Search
+              - sagemaker:StopTrainingJob
+              - sagemaker:UpdateEndpoint
+            Effect: Allow
+            Resource: "*"
+            Sid: Sagemaker1
+          - Action:
+              - sagemaker:CreateApp
+              - sagemaker:CreateDataQualityJobDefinition
+              - sagemaker:CreateDomain
+              - sagemaker:CreateTrainingJob
+              - sagemaker:UpdateTrainingJob
+            Condition:
+              ForAllValues:StringLike:
+                sagemaker:InstanceTypes:
+                  - ml.m5.large
+                  - ml.m4.xlarge
+                  - ml.m5.xlarge
+                  - ml.g5.2xlarge
+                  - ml.g5.xlarge
+                  - ml.t3.medium
+            Effect: Allow
+            Resource: "*"
+            Sid: sagemaker2
+          - Action:
+              - cloudwatch:PutMetricData
+              - logs:CreateLogGroup
+              - logs:CreateLogStream
+              - logs:DeleteLogGroup
+              - logs:DeleteLogStream
+              - logs:Describe*
+              - logs:Get*
+              - logs:PutLogEvents
+              - s3:AbortMultipartUpload
+              - s3:CreateBucket
+              - s3:DeleteObject
+              - s3:GetObject
+              - s3:List*
+              - s3:PutObject
+            Effect: Allow
+            Resource: "*"
+            Sid: other
+        Version: "2012-10-17"
+      PolicyName: notebookAccessPolicy
+      Roles:
+        - Ref: notebookAccessRoleFF9FFE8C
+    Metadata:
+      aws:cdk:path: CdkLab87db28eeStack/notebookAccessPolicy/Resource
+  MyCfnDomain:
+    Type: AWS::SageMaker::Domain
+    Properties:
+      AuthMode: IAM
+      DefaultUserSettings:
+        ExecutionRole:
+          Fn::GetAtt:
+            - notebookAccessRoleFF9FFE8C
+            - Arn
+        SecurityGroups:
+          - Fn::GetAtt:
+              - LabVPC841D92ED
+              - DefaultSecurityGroup
+      DomainName:
+        Fn::Join:
+          - ""
+          - - chatbot-llm-lab-
+            - Fn::Select:
+                - 0
+                - Fn::Split:
+                    - "-"
+                    - Fn::Select:
+                        - 2
+                        - Fn::Split:
+                            - /
+                            - Ref: AWS::StackId
+      SubnetIds:
+        - Ref: LabVPCpublicSubnet1Subnet01111A5D
+      VpcId:
+        Ref: LabVPC841D92ED
+    Metadata:
+      aws:cdk:path: CdkLab87db28eeStack/MyCfnDomain
+  UserProfile:
+    Type: AWS::SageMaker::UserProfile
+    Properties:
+      DomainId:
+        Fn::GetAtt:
+          - MyCfnDomain
+          - DomainId
+      UserProfileName:
+        Fn::Join:
+          - ""
+          - - default-
+            - Fn::Select:
+                - 0
+                - Fn::Split:
+                    - "-"
+                    - Fn::Select:
+                        - 2
+                        - Fn::Split:
+                            - /
+                            - Ref: AWS::StackId
+      UserSettings:
+        ExecutionRole:
+          Fn::GetAtt:
+            - notebookAccessRoleFF9FFE8C
+            - Arn
+    Metadata:
+      aws:cdk:path: CdkLab87db28eeStack/UserProfile
+  MyApp:
+    Type: AWS::SageMaker::App
+    Properties:
+      AppName: default
+      AppType: JupyterServer
+      DomainId:
+        Fn::GetAtt:
+          - MyCfnDomain
+          - DomainId
+      UserProfileName:
+        Fn::Join:
+          - ""
+          - - default-
+            - Fn::Select:
+                - 0
+                - Fn::Split:
+                    - "-"
+                    - Fn::Select:
+                        - 2
+                        - Fn::Split:
+                            - /
+                            - Ref: AWS::StackId
+    DependsOn:
+      - UserProfile
+    Metadata:
+      aws:cdk:path: CdkLab87db28eeStack/MyApp
+  NotebookApp:
+    Type: AWS::SageMaker::App
+    Properties:
+      AppName: Notebook
+      AppType: KernelGateway
+      DomainId:
+        Fn::GetAtt:
+          - MyCfnDomain
+          - DomainId
+      ResourceSpec:
+        InstanceType: ml.t3.medium
+        SageMakerImageArn: arn:aws:sagemaker:us-east-1:081325390199:image/sagemaker-data-science-310-v1
+      UserProfileName:
+        Fn::Join:
+          - ""
+          - - default-
+            - Fn::Select:
+                - 0
+                - Fn::Split:
+                    - "-"
+                    - Fn::Select:
+                        - 2
+                        - Fn::Split:
+                            - /
+                            - Ref: AWS::StackId
+    DependsOn:
+      - UserProfile
+    Metadata:
+      aws:cdk:path: CdkLab87db28eeStack/NotebookApp
+  lexbotroleD4C0438E:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: lexv2.amazonaws.com
+        Version: "2012-10-17"
+      RoleName: lex_bot_role
+    Metadata:
+      aws:cdk:path: CdkLab87db28eeStack/lex_bot_role/Resource
+  lexrunbotpolicy6AC42B5A:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action: polly:SynthesizeSpeech
+            Effect: Allow
+            Resource: "*"
+        Version: "2012-10-17"
+      PolicyName: lex-run-bot
+      Roles:
+        - Ref: lexbotroleD4C0438E
+    Metadata:
+      aws:cdk:path: CdkLab87db28eeStack/lex_run_bot_policy/Resource
+  lexputlogspolicyC3671263:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action:
+              - logs:CreateLogStream
+              - logs:PutLogEvents
+            Effect: Allow
+            Resource: "*"
+        Version: "2012-10-17"
+      PolicyName: lex-put-logs
+      Roles:
+        - Ref: lexbotroleD4C0438E
+    Metadata:
+      aws:cdk:path: CdkLab87db28eeStack/lex_put_logs_policy/Resource
+  endpointValidateLambda95463E0B:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+        Version: "2012-10-17"
+      RoleName: endpoint_validate_role
+    Metadata:
+      aws:cdk:path: CdkLab87db28eeStack/endpointValidateLambda/Resource
+  endpointValidateAccessPolicyC1C45FD1:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action:
+              - lambda:UpdateFunctionCode
+              - logs:CreateLogGroup
+              - sagemaker:InvokeEndpoint
+              - sagemaker:InvokeEndpointAsync
+            Effect: Allow
+            Resource:
+              - arn:aws:lambda:us-east-1:*:function:endpoint_invoke_function
+              - arn:aws:logs:us-east-1:*:*
+              - arn:aws:sagemaker:*:*:endpoint/*
+            Sid: VisualEditor0
+          - Action:
+              - logs:CreateLogStream
+              - logs:PutLogEvents
+            Effect: Allow
+            Resource: arn:aws:logs:*:*:log-group:/aws/lambda/endpoint_invoke_function:*
+            Sid: VisualEditor1
+        Version: "2012-10-17"
+      PolicyName: endpoint-validate-AccessPolicy
+      Roles:
+        - Ref: endpointValidateLambda95463E0B
+    Metadata:
+      aws:cdk:path: CdkLab87db28eeStack/endpointValidateAccessPolicy/Resource
+  LangchainLambdaLayer228DBF15:
+    Type: AWS::Lambda::LayerVersion
+    Properties:
+      CompatibleRuntimes:
+        - python3.8
+        - python3.9
+        - python3.10
+      Content:
+        S3Bucket: pu-base-buckets-v1-provision-lab
+        S3Key: 87db28ee-be43-4d8f-b9b7-70dcaccf7e31/langchain-layer-3.9.zip
+      Description: Langchain
+      LayerName: langchain-layer
+    Metadata:
+      aws:cdk:path: CdkLab87db28eeStack/LangchainLambdaLayer/Resource
+  invokeendpoint2C82995B:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+        S3Bucket: pu-base-buckets-v1-provision-lab
+        S3Key: 87db28ee-be43-4d8f-b9b7-70dcaccf7e31/LambdaCode.zip
+      Environment:
+        Variables:
+          ENDPOINT_NAME: <REPLACE_ME>
+      FunctionName: endpoint_invoke_function
+      Handler: lex_langchain_hook_function.lambda_handler
+      Layers:
+        - Ref: LangchainLambdaLayer228DBF15
+      MemorySize: 512
+      Role:
+        Fn::GetAtt:
+          - endpointValidateLambda95463E0B
+          - Arn
+      Runtime: python3.9
+      Timeout: 120
+    DependsOn:
+      - endpointValidateLambda95463E0B
+    Metadata:
+      aws:cdk:path: CdkLab87db28eeStack/invoke_endpoint/Resource
+  invokeendpointInvokeSvFxGy7DX2gxObGGHkXUOYXcVuKE47n240yswOZ4O3YF454F424:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Fn::GetAtt:
+          - invokeendpoint2C82995B
+          - Arn
+      Principal: lexv2.amazonaws.com
+    Metadata:
+      aws:cdk:path: CdkLab87db28eeStack/invoke_endpoint/InvokeSvFxGy7DX2gxObGGHkXUOYXcVuKE47n240yswOZ4O3Y=
+  copyDataRole85605A2D:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+        Version: "2012-10-17"
+      RoleName: data_copy_role
+    Metadata:
+      aws:cdk:path: CdkLab87db28eeStack/copyDataRole/Resource
+  copyDataPolicy02B66F21:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action:
+              - logs:CreateLogGroup
+              - logs:CreateLogStream
+              - logs:DeleteLogGroup
+              - logs:DeleteLogStream
+              - logs:PutLogEvents
+              - s3:*
+            Effect: Allow
+            Resource: "*"
+        Version: "2012-10-17"
+      PolicyName: copyDataAccessPolicy
+      Roles:
+        - Ref: copyDataRole85605A2D
+    Metadata:
+      aws:cdk:path: CdkLab87db28eeStack/copyDataPolicy/Resource
+  loaddata7BA80661:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+        S3Bucket: pu-base-buckets-v1-provision-lab
+        S3Key: support/data_copy_lambda.zip
+      FunctionName: load_data_function
+      Handler: dataCopy.lambda_handler
+      MemorySize: 512
+      Role:
+        Fn::GetAtt:
+          - copyDataRole85605A2D
+          - Arn
+      Runtime: python3.10
+      Timeout: 300
+    DependsOn:
+      - copyDataRole85605A2D
+    Metadata:
+      aws:cdk:path: CdkLab87db28eeStack/load_data/Resource
+  invokeCopyFunction:
+    Type: AWS::CloudFormation::CustomResource
+    Properties:
+      ServiceToken:
+        Fn::GetAtt:
+          - loaddata7BA80661
+          - Arn
+      sourceBucket: pu-base-buckets-v1-provision-lab
+      destinationBucket:
+        Fn::Join:
+          - ""
+          - - chatbot-llm-
+            - Ref: AWS::AccountId
+            - "-"
+            - Fn::Select:
+                - 0
+                - Fn::Split:
+                    - "-"
+                    - Fn::Select:
+                        - 2
+                        - Fn::Split:
+                            - /
+                            - Ref: AWS::StackId
+      keyPrefix: 87db28ee-be43-4d8f-b9b7-70dcaccf7e31
+      fileList:
+        - LexJson.zip
+    DependsOn:
+      - chatbotllmbucket43B267C2
+      - loaddata7BA80661
+    Metadata:
+      aws:cdk:path: CdkLab87db28eeStack/invokeCopyFunction
+  invokeCopyCodeFunction:
+    Type: AWS::CloudFormation::CustomResource
+    Properties:
+      ServiceToken:
+        Fn::GetAtt:
+          - loaddata7BA80661
+          - Arn
+      sourceBucket: pu-base-buckets-v1-provision-lab
+      destinationBucket:
+        Ref: codebucket781C62F5
+      keyPrefix: 87db28ee-be43-4d8f-b9b7-70dcaccf7e31
+      fileList:
+        - chatbot_llm.ipynb
+        - diy_upload.sh
+    DependsOn:
+      - codebucket781C62F5
+      - loaddata7BA80661
+    Metadata:
+      aws:cdk:path: CdkLab87db28eeStack/invokeCopyCodeFunction
+  CDKMetadata:
+    Type: AWS::CDK::Metadata
+    Properties:
+      Analytics: v2:deflate64:H4sIAAAAAAAA/2WQS2/DIBCEf0vvhDbJob0m7kOR+kBOm2u1xuuE2oAFSyLL8n+vMGmdqqf9ZnYEAws+X97ymys4+Zks61mjCt5vCWTN4OQ/ewWa97ltkGWVGaewjZJdlGd6AQN7LCf/jzEwv+T9OsgaaQ0eWcKYSzSwBnRRAu8fg5GkrIm7SxbotPI+qmfo0O3Q+fPqUg8Mj2jI89g0NMhQLni/a2UM7kTGRCgaJbehMOn+iXIbCN+hSM9M/uStvLdSwU+dcRHhYSPieAV6AsITdEw4dQTC6eCNIXQGfwOpyVmtiEAeNBoamIc9aqjR8T6rzL3VoMbLPjw64WylUrVV2w4Dy9Hb4CSyLHiyepKVuWQBDjQSuij+R98CtWFsmVlTKhq/UHR0sOZ6yedzfnf15ZWauWBIaeR5mt/oq8QSMgIAAA==
+    Metadata:
+      aws:cdk:path: CdkLab87db28eeStack/CDKMetadata/Default
+    Condition: CDKMetadataAvailable
+Parameters:
+  LabResourcesBucket:
+    Type: String
+  LabResourcesBucketKeyPrefix:
+    Type: String
+  LabPoolId:
+    Type: String
+  LabUserRoleName:
+    Type: String
+Outputs:
+  labcodebucketarn:
+    Value:
+      Fn::GetAtt:
+        - codebucket781C62F5
+        - Arn
+  endpointinvokefunctionarn:
+    Value:
+      Fn::GetAtt:
+        - invokeendpoint2C82995B
+        - Arn
+Conditions:
+  CDKMetadataAvailable:
+    Fn::Or:
+      - Fn::Or:
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - af-south-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-east-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-northeast-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-northeast-2
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-south-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-southeast-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-southeast-2
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ca-central-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - cn-north-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - cn-northwest-1
+      - Fn::Or:
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-central-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-north-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-south-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-west-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-west-2
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-west-3
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - il-central-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - me-central-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - me-south-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - sa-east-1
+      - Fn::Or:
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - us-east-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - us-east-2
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - us-west-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - us-west-2
+

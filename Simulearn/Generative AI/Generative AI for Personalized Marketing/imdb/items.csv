@@ -1,0 +1,79 @@
+ITEM_ID,TITLE,YEAR,IMDB_RATING,IMDB_NUMBEROFVOTES,US_MATURITY_RATING_STRING,US_MATURITY_RATING,GENRES,CREATION_TIMESTAMP,PROMOTION
+tt0068646,The Godfather,1972,9,1589936,R,17,Crime|Drama,63072000,FALSE
+tt0102057,Hook,1991,7,231638,PG,8,Adventure|Comedy|Family|Fantasy,662688000,FALSE
+tt0103950,City Hunter,1993,6,9889,PG-13,13,Action|Comedy|Crime,725846400,FALSE
+tt0104361,A Grand Day Out,1989,8,31067,Not Rated,18,Animation|Short|Adventure|Comedy|Family|Sci-Fi,599616000,FALSE
+tt0117110,Muppet Treasure Island,1996,7,21212,G,0,Action|Adventure|Comedy|Family|Musical|Romance,820454400,FALSE
+tt0117887,That Thing You Do!,1996,7,61756,PG,8,Comedy|Drama|Music,820454400,FALSE
+tt0120338,Titanic,1997,8,1031310,PG-13,13,Drama|Romance,852076800,FALSE
+tt0120382,The Truman Show,1998,8,922119,PG,8,Comedy|Drama|Sci-Fi,883612800,FALSE
+tt0124718,He Got Game,1998,7,43923,R,17,Drama|Sport,883612800,FALSE
+tt0126029,Shrek,2001,8,605533,PG,8,Animation|Adventure|Comedy|Family|Fantasy,978307200,FALSE
+tt0132347,Mystery Men,1999,6,61377,PG-13,13,Action|Comedy|Fantasy|Sci-Fi,915148800,FALSE
+tt0165623,Angst,1983,7,8421,Not Rated,18,Drama|Horror|Thriller,410227200,FALSE
+tt0165832,Interstate 60: Episodes of the Road,2002,8,29629,R,17,Adventure|Comedy|Drama|Fantasy,1009843200,FALSE
+tt0165982,Sinbad: Legend of the Seven Seas,2003,7,48689,PG,8,Animation|Adventure|Family|Fantasy,1041379200,FALSE
+tt0172156,Bad Boys II,2003,7,229251,R,17,Action|Comedy|Crime|Thriller,1041379200,FALSE
+tt0172493,"Girl, Interrupted",1999,7,162040,R,17,Biography|Drama,915148800,FALSE
+tt0191397,The Replacements,2000,7,57679,PG-13,13,Comedy|Sport,946684800,FALSE
+tt0195234,Saving Grace,2000,7,17452,R,17,Comedy|Crime,946684800,FALSE
+tt0196216,Small Time Crooks,2000,7,36537,PG,8,Comedy|Crime,946684800,FALSE
+tt0196229,Zoolander,2001,6,244106,PG-13,13,Comedy,978307200,FALSE
+tt0199753,Red Planet,2000,6,55018,PG-13,13,Action|Sci-Fi|Thriller,946684800,FALSE
+tt0200550,Coyote Ugly,2000,6,105715,R,17,Comedy|Drama|Music|Romance,946684800,FALSE
+tt0200849,My Best Fiend,1999,8,10270,Not Rated,18,Documentary|Biography,915148800,FALSE
+tt0202677,The Way of the Gun,2000,7,31588,R,17,Action|Crime|Drama|Thriller,946684800,FALSE
+tt0204626,The Watcher,2000,5,25674,R,17,Crime|Drama|Mystery|Thriller,946684800,FALSE
+tt0204946,Bring It On,2000,6,86604,PG-13,13,Comedy|Romance|Sport,946684800,FALSE
+tt0205000,Deuce Bigalow: Male Gigolo,1999,6,70195,R,17,Comedy|Romance,915148800,FALSE
+tt0206314,Joy Ride,2001,7,63483,R,17,Action|Mystery|Thriller,978307200,FALSE
+tt0208874,The Contender,2000,7,22706,R,17,Drama|Thriller,946684800,FALSE
+tt0208990,The Son's Room,2001,7,17400,R,17,Drama,978307200,FALSE
+tt0209163,The Mummy Returns,2001,6,298216,PG-13,13,Action|Adventure|Fantasy|Thriller,978307200,FALSE
+tt0210065,Gangster No. 1,2000,7,13036,R,17,Crime|Drama|Thriller,946684800,FALSE
+tt0210234,Pokémon the Movie 2000,1999,6,20496,G,0,Animation|Action|Adventure|Family|Fantasy,915148800,FALSE
+tt0211443,Jason X,2001,4,50109,R,17,Action|Horror|Sci-Fi|Thriller,978307200,FALSE
+tt0212720,A.I. Artificial Intelligence,2001,7,287906,PG-13,13,Drama|Sci-Fi,978307200,FALSE
+tt0212974,Groove,2000,7,4022,R,17,Drama|Music,946684800,FALSE
+tt0212985,Hannibal,2001,7,252106,R,17,Crime|Drama|Thriller,978307200,FALSE
+tt0217505,Gangs of New York,2002,8,400231,R,17,Crime|Drama,1009843200,FALSE
+tt0217869,Unbreakable,2000,7,382770,PG-13,13,Drama|Mystery|Sci-Fi|Thriller,946684800,FALSE
+tt0218043,Beyond the Mat,1999,8,8361,R,17,Documentary|Biography|Sport,915148800,FALSE
+tt0218182,An Everlasting Piece,2000,6,1586,R,17,Comedy,946684800,FALSE
+tt0219653,Dracula 2000,2000,5,31837,R,17,Action|Fantasy|Horror|Thriller,946684800,FALSE
+tt0219699,The Gift,2000,7,62836,R,17,Drama|Fantasy|Horror|Mystery,946684800,FALSE
+tt0219822,Human Nature,2001,6,17383,R,17,Comedy|Drama,978307200,FALSE
+tt0227445,The Score,2001,7,120066,R,17,Action|Crime|Drama|Thriller,978307200,FALSE
+tt0228333,Ghosts of Mars,2001,5,50660,R,17,Action|Horror|Sci-Fi,978307200,FALSE
+tt0235198,Audition,1999,7,71744,R,17,Drama|Horror|Mystery,915148800,FALSE
+tt0235327,Dark Days,2000,8,6332,Not Rated,18,Documentary,946684800,FALSE
+tt0235737,The Salton Sea,2002,7,29408,R,17,Crime|Drama|Mystery|Thriller,1009843200,FALSE
+tt0240510,The Four Feathers,2002,6,32363,R,17,Action|Adventure|Drama|Romance|War,1009843200,FALSE
+tt0241025,Vanity Fair,2004,6,20972,PG-13,13,Drama,1072915200,FALSE
+tt0243017,Waking Life,2001,8,60216,R,17,Animation|Drama|Fantasy,978307200,FALSE
+tt0243135,Happenstance,2000,7,3778,R,17,Comedy|Drama|Romance,946684800,FALSE
+tt0246643,George Carlin: Jammin' in New York,1992,9,3221,TV-MA,17,Documentary|Comedy,694224000,FALSE
+tt0246645,George Carlin: You Are All Diseased,1999,9,3798,TV-MA,17,Documentary|Comedy,915148800,FALSE
+tt0246677,Heaven,2002,7,23123,R,17,Crime|Drama|Romance|Thriller,1009843200,FALSE
+tt0251127,How to Lose a Guy in 10 Days,2003,6,207606,PG-13,13,Comedy|Romance,1041379200,FALSE
+tt0252866,American Pie 2,2001,6,237881,R,17,Comedy,978307200,FALSE
+tt0253556,Reign of Fire,2002,6,125357,PG-13,13,Action|Adventure|Fantasy|Thriller,1009843200,FALSE
+tt0256415,Sweet Home Alabama,2002,6,101306,PG-13,13,Comedy|Romance,1009843200,FALSE
+tt0906325,Bagboy,2007,4,741,PG-13,13,Comedy,1167609600,FALSE
+tt0906665,Sukiyaki Western Django,2007,6,14582,R,17,Action|Western,1167609600,FALSE
+tt0907657,Once,2007,8,109787,R,17,Drama|Music|Romance,1167609600,FALSE
+tt0910554,Frequently Asked Questions About Time Travel,2009,7,32051,PG-13,13,Comedy|Sci-Fi,1230768000,FALSE
+tt0910812,Tin Man,2007,7,13049,TV-PG,8,Adventure|Fantasy|Sci-Fi|Western,1167609600,FALSE
+tt0910847,Breakfast with Scot,2007,7,2929,PG-13,13,Comedy|Drama|Music|Romance|Sport,1167609600,FALSE
+tt0910873,An Evening with Kevin Smith 2: Evening Harder,2006,8,2873,Unrated,18,Documentary|Comedy,1136073600,FALSE
+tt0910885,A Merry Friggin' Christmas,2014,5,5792,PG-13,13,Comedy|Drama,1388534400,FALSE
+tt0910905,In the Electric Mist,2009,6,16592,R,17,Crime|Drama|Mystery|Thriller,1230768000,FALSE
+tt0910936,Pineapple Express,2008,7,313198,R,17,Action|Comedy|Crime,1199145600,FALSE
+tt0910970,WALL·E,2008,8,984101,G,0,Animation|Adventure|Family|Sci-Fi,1199145600,FALSE
+tt0912583,For the Bible Tells Me So,2007,8,4322,Unrated,18,Documentary|Romance,1167609600,FALSE
+tt0912592,My Kid Could Paint That,2007,7,3182,PG-13,13,Documentary|Family|Mystery,1167609600,FALSE
+tt0912593,No End in Sight,2007,8,8120,Not Rated,18,Documentary|War,1167609600,FALSE
+tt0912599,War Dance,2007,8,1113,PG-13,13,Documentary|Music|War,1167609600,FALSE
+tt0913445,YPF,2007,6,18901,Not Rated,18,Comedy|Drama|Romance,1167609600,FALSE
+tt0914798,The Boy in the Striped Pajamas,2008,8,187710,PG-13,13,Drama|War,1199145600,FALSE
+tt1007028,Zack and Miri Make a Porno,2008,6,171278,R,17,Comedy|Romance,1199145600,FALSE
